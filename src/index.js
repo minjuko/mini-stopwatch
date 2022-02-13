@@ -2,41 +2,40 @@ import Stopwatch from './stopwatch.js';
 
 const stopwatch = new Stopwatch();
 
-let interval;
 let isRunning = false;
+let interval;
 
 const $timer = document.getElementById('timer');
+
 const $lapResetBtn = document.getElementById('lap-reset-btn');
 const $startStopBtn = document.getElementById('start-stop-btn');
 const $lapResetBtnLabel = document.getElementById('lap-reset-btn-label');
 const $startStopBtnLabel = document.getElementById('start-stop-btn-label');
 const $laps = document.getElementById('laps');
-let $maxLap, $minLap;
+
+let $minLap, $maxLap;
 
 const formatString = (num) => (num < 10 ? '0' + num : num);
 
 const formatTime = (centisecond) => {
+    let formattedString = '';
     const min = parseInt(centisecond / 6000);
     const sec = parseInt((centisecond - 6000 * min) / 100);
-    const centiSec = centisecond % 100;
-    return `${formatString(min)}:${formatString(sec)}.${formatString(
-        centiSec
+    const centisec = centisecond % 100;
+    formattedString = `${formatString(min)}:${formatString(sec)}.${formatString(
+        centisec
     )}`;
+    return formattedString;
 };
 
-function updateTime(time) {
+const updateTime = (time) => {
     $timer.innerText = formatTime(time);
-}
+};
 
-function toggleButtonStyle() {
-    $startStopBtn.classList.toggle('bg-red-600');
+const toggleBtnStyle = () => {
     $startStopBtn.classList.toggle('bg-green-600');
-}
-
-function colorMinMax() {
-    $minLap.classList.add('text-green-600');
-    $maxLap.classList.add('text-red-600');
-}
+    $startStopBtn.classList.toggle('bg-red-600');
+};
 
 const onClickStartStopBtn = () => {
     if (isRunning) {
@@ -45,23 +44,7 @@ const onClickStartStopBtn = () => {
         onClickStartBtn();
     }
     isRunning = !isRunning;
-    toggleButtonStyle();
-};
-
-const onClickStartBtn = () => {
-    stopwatch.start();
-    interval = setInterval(() => {
-        updateTime(stopwatch.centisecond);
-    }, 10);
-    $startStopBtnLabel.innerText = '중단';
-    $lapResetBtnLabel.innerText = '랩';
-};
-
-const onClickStopBtn = () => {
-    stopwatch.pause();
-    clearInterval(interval);
-    $startStopBtnLabel.innerText = '시작';
-    $lapResetBtnLabel.innerText = '리셋';
+    toggleBtnStyle();
 };
 
 const onClickLapResetBtn = () => {
@@ -70,6 +53,35 @@ const onClickLapResetBtn = () => {
     } else {
         onClickResetBtn();
     }
+};
+
+const onClickStartBtn = () => {
+    stopwatch.start();
+    interval = setInterval(() => {
+        updateTime(stopwatch.centisecond);
+    }, 10);
+    $lapResetBtnLabel.innerText = '랩';
+    $startStopBtnLabel.innerText = '중단';
+};
+
+const onClickStopBtn = () => {
+    stopwatch.pause();
+    clearInterval(interval);
+    $lapResetBtnLabel.innerText = '리셋';
+    $startStopBtnLabel.innerText = '시작';
+};
+
+const onClickResetBtn = () => {
+    stopwatch.reset();
+    updateTime(0);
+    $laps.innerHTML = '';
+    $minLap = undefined;
+    $maxLap = undefined;
+};
+
+const colorMinMax = () => {
+    $minLap.classList.add('text-green-600');
+    $maxLap.classList.add('text-red-600');
 };
 
 const onClickLapBtn = () => {
@@ -81,16 +93,13 @@ const onClickLapBtn = () => {
     <span>랩 ${lapCount}</span>
     <span>${formatTime(lapTime)}</span>
     `;
-    $laps.insertBefore($lap, $laps.firstChild);
+    $laps.prepend($lap);
 
-    // 1. 첫 Lap은 minLap으로 둔다.
-    if (!$minLap) {
+    if ($minLap === undefined) {
         $minLap = $lap;
         return;
     }
-
-    // 2. 두번째 Lap은 첫번째 Lap과 비교해 (minLap) 최소, 최대를 정한다.
-    if (!$maxLap) {
+    if ($maxLap === undefined) {
         if (lapTime < $minLap.dataset.time) {
             $maxLap = $minLap;
             $minLap = $lap;
@@ -111,29 +120,18 @@ const onClickLapBtn = () => {
     colorMinMax();
 };
 
-const onClickResetBtn = () => {
-    stopwatch.reset();
-    updateTime(0);
-    $laps.innerHTML = '';
-    $minLap = null;
-    $maxLap = null;
-};
-
-const onKeydown = (e) => {
-    // keyCode로 하는 이유 - 한영키
-    switch (e.keyCode) {
-        case 83:
-            onClickStartStopBtn();
-            break;
-        case 76:
+const onKeyDown = (e) => {
+    switch (e.code) {
+        case 'KeyL':
             onClickLapResetBtn();
+            break;
+        case 'KeyS':
+            onClickStartStopBtn();
             break;
     }
 };
 
-$startStopBtn.addEventListener(
-    'click',
-    onClickStartStopBtn // this가 stopwatch (메소드로써 실행)
-);
+$startStopBtn.addEventListener('click', onClickStartStopBtn);
 $lapResetBtn.addEventListener('click', onClickLapResetBtn);
-document.addEventListener('keydown', onKeydown);
+
+document.addEventListener('keydown', onKeyDown);
