@@ -62,5 +62,49 @@ const onClickStopBtn = () => {
     $startStopBtnLabel.innerText = '시작';
 };
 
-$startStopBtn.addEventListener('click', onClickStartStopBtn);
+const onClickLapResetBtn = () => {
+    if (isRunning) {
+        onClickLapBtn();
+    } else {
+        onClickResetBtn();
+    }
+};
 
+const onClickLapBtn = () => {
+    const [lapCount, lapTime] = stopwatch.createLap();
+    const $lap = document.createElement('li');
+    $lap.setAttribute('data-time', lapTime);
+    $lap.classList.add('flex', 'justify-between', 'py-2', 'px-3', 'border-b-2');
+    $lap.innerHTML += `
+    <span>랩 ${lapCount}</span>
+    <span>${formatTime(lapTime)}</span>
+    `;
+    $laps.prepend($lap);
+
+    if ($minLap === undefined) {
+        $minLap = $lap;
+        return;
+    }
+    if ($maxLap === undefined) {
+        if (lapTime < $minLap.dataset.time) {
+            $maxLap = $minLap;
+            $minLap = $lap;
+        } else {
+            $maxLap = $lap;
+        }
+        colorMinMax();
+        return;
+    }
+
+    if (lapTime < $minLap.dataset.time) {
+        $minLap.classList.remove('text-green-600');
+        $minLap = $lap;
+    } else if (lapTime > $maxLap.dataset.time) {
+        $maxLap.classList.remove('text-red-600');
+        $maxLap = $lap;
+    }
+    colorMinMax();
+};
+
+$startStopBtn.addEventListener('click', onClickStartStopBtn);
+$lapResetBtn.addEventListener('click', onClickLapResetBtn);
