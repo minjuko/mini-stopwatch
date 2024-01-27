@@ -1,4 +1,4 @@
-import Stopwatch from "./stopwatch";
+import Stopwatch from './stopwatch.js';
 
 const stopwatch = new Stopwatch();
 
@@ -46,6 +46,15 @@ const onClickStartStopBtn = () => {
     isRunning = !isRunning;
     toggleBtnStyle();
 };
+
+const onClickLapResetBtn = () => {
+    if (isRunning) {
+        onClickLapBtn();
+    } else {
+        onClickResetBtn();
+    }
+};
+
 const onClickStartBtn = () => {
     stopwatch.start();
     interval = setInterval(() => {
@@ -70,12 +79,9 @@ const onClickResetBtn = () => {
     $maxLap = undefined;
 };
 
-const onClickLapResetBtn = () => {
-    if (isRunning) {
-        onClickLapBtn();
-    } else {
-        onClickResetBtn();
-    }
+const colorMinMax = () => {
+    $minLap.classList.add('text-green-600');
+    $maxLap.classList.add('text-red-600');
 };
 
 const onClickLapBtn = () => {
@@ -111,7 +117,7 @@ const onClickLapBtn = () => {
         $maxLap.classList.remove('text-red-600');
         $maxLap = $lap;
     }
-
+    colorMinMax();
 };
 
 const onKeyDown = (e) => {
@@ -127,4 +133,5 @@ const onKeyDown = (e) => {
 
 $startStopBtn.addEventListener('click', onClickStartStopBtn);
 $lapResetBtn.addEventListener('click', onClickLapResetBtn);
+
 document.addEventListener('keydown', onKeyDown);
