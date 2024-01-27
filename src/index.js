@@ -62,6 +62,14 @@ const onClickStopBtn = () => {
     $startStopBtnLabel.innerText = '시작';
 };
 
+const onClickResetBtn = () => {
+    stopwatch.reset();
+    updateTime(0);
+    $laps.innerHTML = '';
+    $minLap = undefined;
+    $maxLap = undefined;
+};
+
 const onClickLapResetBtn = () => {
     if (isRunning) {
         onClickLapBtn();
@@ -103,8 +111,20 @@ const onClickLapBtn = () => {
         $maxLap.classList.remove('text-red-600');
         $maxLap = $lap;
     }
-    colorMinMax();
+
+};
+
+const onKeyDown = (e) => {
+    switch (e.code) {
+        case 'KeyL':
+            onClickLapResetBtn();
+            break;
+        case 'KeyS':
+            onClickStartStopBtn();
+            break;
+    }
 };
 
 $startStopBtn.addEventListener('click', onClickStartStopBtn);
 $lapResetBtn.addEventListener('click', onClickLapResetBtn);
+document.addEventListener('keydown', onKeyDown);
